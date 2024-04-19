@@ -32,7 +32,7 @@ function AdminPage() {
     switch (type) {
       case "userinfo":
         setIdNumber(id);
-        fetchSearchDate(id); // Use id directly here
+        fetchSearchDate1(id); // Use id directly here
         break;
       case "userattendance":
         setIdNumber(id);
@@ -41,25 +41,20 @@ function AdminPage() {
     }
   };
 
-  const handleSubmit = () => {
-    fetchSearchDate(idnumber);
-    fetchSearchData();
-  };
-
   useEffect(() => {
     fetchData();
+    fetchSearchData();
+    fetchSearchDate();
     if (storedUser === "1") {
       navigate("/adminhome");
     } else navigate("/");
   }, []);
 
   useEffect(() => {
-    setSearchData([]);
-  }, [search]);
-
-  useEffect(() => {
+    console.log(search);
+    console.log(searchData);
     fetchSearchData();
-    fetchSearchDate1();
+    fetchSearchDate();
   }, [search]);
 
   const fetchData = async () => {
@@ -82,7 +77,55 @@ function AdminPage() {
       );
       console.log(response.data);
       setSearchData(response.data);
-      console.log(searchData);
+      const dataArray = response.data;
+      const specificValue = dataArray[0].userID;
+      setIdNumber(specificValue);
+      try {
+        setSearchDate([]); // Set an empty array if there are no search results
+        const response = await axios.post(
+          "http://localhost/finals/displayDate.php",
+          { search: specificValue }
+        );
+        console.log(response.data);
+        setSearchDate(response.data);
+        if (response.data) {
+          const dataArray = response.data;
+          const specificValue = dataArray[0].userID;
+          setIdNumber(specificValue);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchSearchDate = async () => {
+    try {
+      setSearchDate([]); // Set an empty array if there are no search results
+      const response = await axios.post(
+        "http://localhost/finals/displayDate.php",
+        { search: idnumber }
+      );
+      console.log(response.data);
+      setSearchDate(response.data);
+      const dataArray = response.data;
+      const specificValue = dataArray[0].userID;
+      setIdNumber(specificValue);
+      try {
+        const response = await axios.post(
+          "http://localhost/finals/displaySearch.php",
+          { search: search }
+        );
+        console.log(response.data);
+        setSearchData(response.data);
+        const dataArray = response.data;
+        const specificValue = dataArray[0].userID;
+        setIdNumber(specificValue);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -102,26 +145,12 @@ function AdminPage() {
     }
   };
 
-  const fetchSearchDate = async (id) => {
+  const fetchSearchDate1 = async (id) => {
     try {
       setSearchDate([]); // Set an empty array if there are no search results
       const response = await axios.post(
         "http://localhost/finals/displayDate.php",
         { search: id }
-      );
-      console.log(response.data);
-      setSearchDate(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  const fetchSearchDate1 = async () => {
-    try {
-      setSearchDate([]); // Set an empty array if there are no search results
-      const response = await axios.post(
-        "http://localhost/finals/displayDate.php",
-        { search: search }
       );
       console.log(response.data);
       setSearchDate(response.data);

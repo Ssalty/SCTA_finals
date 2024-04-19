@@ -13,15 +13,12 @@ function Register() {
   const [msg, setMsg] = useState("");
 
   const [hasIdNumber, setHasIdNumber] = React.useState(true);
-  const [randomNumber, setRandomNumber] = useState("");
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   const navigate = useNavigate();
 
   const generateRandomNumber = () => {
     const newNumber = Math.floor(Math.random() * 9000000000) + 1000000000;
-    setRandomNumber(newNumber.toString().slice(0, 10));
     setIdNumber(newNumber);
   };
 
@@ -88,6 +85,7 @@ function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const Data = {
       idnumber: idnumber,
       cname: cname,
@@ -105,10 +103,14 @@ function Register() {
           axios
             .post("http://localhost/finals/login.php", Data)
             .then((response) => {
+              setShowPopup(true);
               console.log(response.data);
               localStorage.setItem("isloggedIn", true);
               localStorage.setItem("idnumber", idnumber);
-              navigate("/home");
+              setTimeout(() => {
+                setShowPopup(false);
+                navigate("/home");
+              }, 3000);
             })
             .catch((error) => {
               if (error.response) {
@@ -128,6 +130,27 @@ function Register() {
 
   return (
     <>
+      {showPopup && (
+        <div
+          id="toast-success"
+          class="fixed top-4 left-0 right-0 mx-auto flex items-center w-full max-w-64 p-4 mb-4 text-gray-500 bg-white rounded-lg shadow animate-slideDown"
+          role="alert"
+        >
+          <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg">
+            <svg
+              class="w-5 h-5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+            </svg>
+            <span class="sr-only">Check icon</span>
+          </div>
+          <div class="ms-3 text-sm font-normal">Checked in successfully.</div>
+        </div>
+      )}
       <Nav />
       <div className="flex flex-col">
         <div className="bg-gray-200 p-4 w-96 rounded-b-lg flex min-h-1 flex-1 flex-col justify-center px-6 py-1 lg:px-29">
